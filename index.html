@@ -266,7 +266,7 @@
     <!-- Botões -->
     <div style="text-align: center;">
       <button class="button" onclick="adicionarVideo()">Adicionar Vídeo</button>
-      <button class="button" onclick="voltarVideo()">Voltar</button>
+      <button class="button" onclick="voltar()">Voltar</button>
     </div>
   </div>
 
@@ -278,6 +278,30 @@
 
     const metaSemanal = 375;
     const metaMensal = 1500;
+
+    // Carregar dados salvos ao abrir o site
+    function carregarDados() {
+      const dadosSalvos = JSON.parse(localStorage.getItem('faturamentoDados'));
+      if (dadosSalvos) {
+        semanaAtual = dadosSalvos.semanaAtual;
+        videosPorSemana = dadosSalvos.videosPorSemana;
+        faturamentoPorSemana = dadosSalvos.faturamentoPorSemana;
+        totalFaturamento = dadosSalvos.totalFaturamento;
+        atualizarTabela();
+        atualizarProgresso();
+      }
+    }
+
+    // Salvar dados no localStorage
+    function salvarDados() {
+      const dados = {
+        semanaAtual,
+        videosPorSemana,
+        faturamentoPorSemana,
+        totalFaturamento,
+      };
+      localStorage.setItem('faturamentoDados', JSON.stringify(dados));
+    }
 
     function adicionarVideo() {
       // Verifica se a semana atual já atingiu a meta
@@ -298,6 +322,7 @@
       // Atualiza a tabela e o progresso
       atualizarTabela();
       atualizarProgresso();
+      salvarDados();
     }
 
     function adicionarValorPersonalizado() {
@@ -325,27 +350,34 @@
       // Atualiza a tabela e o progresso
       atualizarTabela();
       atualizarProgresso();
+      salvarDados();
 
       // Limpa o campo de input
       document.getElementById('valorPersonalizado').value = '';
     }
 
-    function voltarVideo() {
-      // Verifica se há vídeos para remover na semana atual
-      if (videosPorSemana[semanaAtual - 1] > 0) {
-        videosPorSemana[semanaAtual - 1] -= 1;
-        faturamentoPorSemana[semanaAtual - 1] -= 25;
-        totalFaturamento -= 25;
+    function voltar() {
+      // Verifica se há faturamento para remover na semana atual
+      if (faturamentoPorSemana[semanaAtual - 1] > 0) {
+        const valorRemovido = faturamentoPorSemana[semanaAtual - 1] - (faturamentoPorSemana[semanaAtual - 1] - 25 >= 0 ? 25 : faturamentoPorSemana[semanaAtual - 1];
+        faturamentoPorSemana[semanaAtual - 1] -= valorRemovido;
+        totalFaturamento -= valorRemovido;
+
+        // Se o valor removido foi de um vídeo, diminui o contador de vídeos
+        if (valorRemovido === 25) {
+          videosPorSemana[semanaAtual - 1] -= 1;
+        }
 
         // Atualiza a tabela e o progresso
         atualizarTabela();
         atualizarProgresso();
+        salvarDados();
       } else if (semanaAtual > 1) {
         // Volta para a semana anterior
         semanaAtual--;
-        voltarVideo(); // Tenta remover um vídeo da semana anterior
+        voltar(); // Tenta remover da semana anterior
       } else {
-        alert("Não há vídeos para remover!");
+        alert("Não há faturamento para remover!");
       }
     }
 
@@ -373,6 +405,9 @@
       document.getElementById('progressMensal').style.width = `${progressoMensal}%`;
       document.getElementById('progressTextMensal').textContent = `R$ ${totalFaturamento.toFixed(2)} / R$ ${metaMensal}`;
     }
+
+    // Carregar dados ao iniciar
+    carregarDados();
   </script>
 </body>
 </html>
