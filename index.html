@@ -359,7 +359,7 @@
     function voltar() {
       // Verifica se há faturamento para remover na semana atual
       if (faturamentoPorSemana[semanaAtual - 1] > 0) {
-        const valorRemovido = faturamentoPorSemana[semanaAtual - 1] - (faturamentoPorSemana[semanaAtual - 1] - 25 >= 0 ? 25 : faturamentoPorSemana[semanaAtual - 1];
+        const valorRemovido = faturamentoPorSemana[semanaAtual - 1] - (faturamentoPorSemana[semanaAtual - 1] - 25 >= 0 ? 25 : faturamentoPorSemana[semanaAtual - 1]);
         faturamentoPorSemana[semanaAtual - 1] -= valorRemovido;
         totalFaturamento -= valorRemovido;
 
