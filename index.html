@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Faturamento Semanal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    /* Reset básico */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+      color: #333;
+      line-height: 1.6;
+      padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #2c3e50;
+      font-size: 2.5rem;
+      font-weight: 700;
+    }
+
+    .container {
+      max-width: 800px;
+      width: 100%;
+      background: #fff;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    .progress-container {
+      margin-bottom: 20px;
+    }
+
+    .progress-bar {
+      background-color: #e0e0e0;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 10px;
+      position: relative;
+    }
+
+    .progress {
+      height: 20px;
+      background: linear-gradient(90deg, #6a11cb, #2575fc);
+      width: 0;
+      border-radius: 10px;
+      transition: width 0.5s ease;
+    }
+
+    .progress-text {
+      text-align: center;
+      font-size: 14px;
+      margin-top: 5px;
+      color: #666;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      animation: slideIn 1s ease-in-out;
+    }
+
+    table th, table td {
+      padding: 12px;
+      text-align: center;
+      border: 1px solid #ddd;
+    }
+
+    table th {
+      background-color: #2c3e50;
+      color: #fff;
+      font-weight: 500;
+    }
+
+    table tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    table tr:hover {
+      background-color: #f1f1f1;
+      transition: background-color 0.3s ease;
+    }
+
+    .total {
+      font-weight: bold;
+      background-color: #e8f5e9;
+    }
+
+    .button {
+      display: inline-block;
+      padding: 12px 24px;
+      background: linear-gradient(90deg, #6a11cb, #2575fc);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-right: 10px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .button:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .input-group input {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+      width: 150px;
+      text-align: center;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @media (max-width: 600px) {
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+
+      th {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+      }
+
+      tr {
+        border: 1px solid #ccc;
+      }
+
+      td {
+        border: none;
+        border-bottom: 1px solid #eee;
+        position: relative;
+        padding-left: 50%;
+      }
+
+      td:before {
+        position: absolute;
+        left: 10px;
+        width: 45%;
+        padding-right: 10px;
+        white-space: nowrap;
+        content: attr(data-label);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Faturamento Semanal</h1>
+    <p style="text-align: center; color: #666; margin-bottom: 20px;">Meta mensal: R$ 1.500 | Valor por vídeo: R$ 25</p>
+
+    <!-- Progresso Semanal -->
+    <div class="progress-container">
+      <h3>Progresso Semanal (Meta: R$ 375)</h3>
+      <div class="progress-bar">
+        <div id="progressSemanal" class="progress"></div>
+      </div>
+      <div id="progressTextSemanal" class="progress-text">R$ 0 / R$ 375</div>
+    </div>
+
+    <!-- Progresso Mensal -->
+    <div class="progress-container">
+      <h3>Progresso Mensal (Meta: R$ 1.500)</h3>
+      <div class="progress-bar">
+        <div id="progressMensal" class="progress"></div>
+      </div>
+      <div id="progressTextMensal" class="progress-text">R$ 0 / R$ 1.500</div>
+    </div>
+
+    <!-- Tabela de Faturamento -->
+    <table id="faturamentoTable">
+      <thead>
+        <tr>
+          <th>Semana</th>
+          <th>Número de Vídeos</th>
+          <th>Faturamento Semanal (R$)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td id="videosSemana1">0</td>
+          <td id="faturamentoSemana1">0</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td id="videosSemana2">0</td>
+          <td id="faturamentoSemana2">0</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td id="videosSemana3">0</td>
+          <td id="faturamentoSemana3">0</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td id="videosSemana4">0</td>
+          <td id="faturamentoSemana4">0</td>
+        </tr>
+        <tr class="total">
+          <td colspan="2">Total</td>
+          <td id="totalFaturamento">0</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Campo para adicionar valor personalizado -->
+    <div class="input-group">
+      <input type="number" id="valorPersonalizado" placeholder="Digite o valor" min="0">
+      <button class="button" onclick="adicionarValorPersonalizado()">Adicionar Valor</button>
+    </div>
+
+    <!-- Botões -->
+    <div style="text-align: center;">
+      <button class="button" onclick="adicionarVideo()">Adicionar Vídeo</button>
+      <button class="button" onclick="voltarVideo()">Voltar</button>
+    </div>
+  </div>
+
+  <script>
+    let semanaAtual = 1; // Começa na Semana 1
+    let videosPorSemana = [0, 0, 0, 0]; // Vídeos das semanas 1, 2, 3 e 4
+    let faturamentoPorSemana = [0, 0, 0, 0]; // Faturamento das semanas 1, 2, 3 e 4
+    let totalFaturamento = 0;
+
+    const metaSemanal = 375;
+    const metaMensal = 1500;
+
+    function adicionarVideo() {
+      // Verifica se a semana atual já atingiu a meta
+      if (faturamentoPorSemana[semanaAtual - 1] >= metaSemanal) {
+        if (semanaAtual < 4) {
+          semanaAtual++; // Avança para a próxima semana
+        } else {
+          alert("Todas as semanas do mês foram completadas!");
+          return;
+        }
+      }
+
+      // Adiciona 1 vídeo e R$ 25 ao faturamento da semana atual
+      videosPorSemana[semanaAtual - 1] += 1;
+      faturamentoPorSemana[semanaAtual - 1] += 25;
+      totalFaturamento += 25;
+
+      // Atualiza a tabela e o progresso
+      atualizarTabela();
+      atualizarProgresso();
+    }
+
+    function adicionarValorPersonalizado() {
+      const valor = parseFloat(document.getElementById('valorPersonalizado').value);
+
+      if (isNaN(valor) || valor <= 0) {
+        alert("Por favor, insira um valor válido maior que zero.");
+        return;
+      }
+
+      // Verifica se a semana atual já atingiu a meta
+      if (faturamentoPorSemana[semanaAtual - 1] >= metaSemanal) {
+        if (semanaAtual < 4) {
+          semanaAtual++; // Avança para a próxima semana
+        } else {
+          alert("Todas as semanas do mês foram completadas!");
+          return;
+        }
+      }
+
+      // Adiciona o valor personalizado ao faturamento da semana atual
+      faturamentoPorSemana[semanaAtual - 1] += valor;
+      totalFaturamento += valor;
+
+      // Atualiza a tabela e o progresso
+      atualizarTabela();
+      atualizarProgresso();
+
+      // Limpa o campo de input
+      document.getElementById('valorPersonalizado').value = '';
+    }
+
+    function voltarVideo() {
+      // Verifica se há vídeos para remover na semana atual
+      if (videosPorSemana[semanaAtual - 1] > 0) {
+        videosPorSemana[semanaAtual - 1] -= 1;
+        faturamentoPorSemana[semanaAtual - 1] -= 25;
+        totalFaturamento -= 25;
+
+        // Atualiza a tabela e o progresso
+        atualizarTabela();
+        atualizarProgresso();
+      } else if (semanaAtual > 1) {
+        // Volta para a semana anterior
+        semanaAtual--;
+        voltarVideo(); // Tenta remover um vídeo da semana anterior
+      } else {
+        alert("Não há vídeos para remover!");
+      }
+    }
+
+    function atualizarTabela() {
+      // Atualiza os valores da tabela
+      document.getElementById('videosSemana1').textContent = videosPorSemana[0];
+      document.getElementById('faturamentoSemana1').textContent = faturamentoPorSemana[0].toFixed(2);
+      document.getElementById('videosSemana2').textContent = videosPorSemana[1];
+      document.getElementById('faturamentoSemana2').textContent = faturamentoPorSemana[1].toFixed(2);
+      document.getElementById('videosSemana3').textContent = videosPorSemana[2];
+      document.getElementById('faturamentoSemana3').textContent = faturamentoPorSemana[2].toFixed(2);
+      document.getElementById('videosSemana4').textContent = videosPorSemana[3];
+      document.getElementById('faturamentoSemana4').textContent = faturamentoPorSemana[3].toFixed(2);
+      document.getElementById('totalFaturamento').textContent = totalFaturamento.toFixed(2);
+    }
+
+    function atualizarProgresso() {
+      // Progresso Semanal
+      const progressoSemanal = (faturamentoPorSemana[semanaAtual - 1] / metaSemanal) * 100;
+      document.getElementById('progressSemanal').style.width = `${progressoSemanal}%`;
+      document.getElementById('progressTextSemanal').textContent = `R$ ${faturamentoPorSemana[semanaAtual - 1].toFixed(2)} / R$ ${metaSemanal}`;
+
+      // Progresso Mensal
+      const progressoMensal = (totalFaturamento / metaMensal) * 100;
+      document.getElementById('progressMensal').style.width = `${progressoMensal}%`;
+      document.getElementById('progressTextMensal').textContent = `R$ ${totalFaturamento.toFixed(2)} / R$ ${metaMensal}`;
+    }
+  </script>
+</body>
+</html>
