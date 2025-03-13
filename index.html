@@ -267,6 +267,9 @@
     <div style="text-align: center;">
       <button class="button" onclick="adicionarVideo()">Adicionar Vídeo</button>
       <button class="button" onclick="voltar()">Voltar</button>
+      <button class="button" onclick="pularSemana()">Pular Semana</button>
+      <button class="button" onclick="voltarSemana()">Voltar Semana</button>
+      <button class="button" onclick="zerarSemana()">Zerar Semana</button>
     </div>
   </div>
 
@@ -344,6 +347,7 @@
       }
 
       // Adiciona o valor personalizado ao faturamento da semana atual
+      videosPorSemana[semanaAtual - 1] += 1; // Incrementa o número de vídeos
       faturamentoPorSemana[semanaAtual - 1] += valor;
       totalFaturamento += valor;
 
@@ -359,16 +363,14 @@
     function voltar() {
       // Verifica se há faturamento para remover na semana atual
       if (faturamentoPorSemana[semanaAtual - 1] > 0) {
-        // Remove R$ 25 se o último valor adicionado foi um vídeo
-        if (videosPorSemana[semanaAtual - 1] > 0) {
-          faturamentoPorSemana[semanaAtual - 1] -= 25;
+        // Remove o último valor adicionado
+        const ultimoValor = faturamentoPorSemana[semanaAtual - 1] - (faturamentoPorSemana[semanaAtual - 1] - 25 >= 0 ? 25 : faturamentoPorSemana[semanaAtual - 1]);
+        faturamentoPorSemana[semanaAtual - 1] -= ultimoValor;
+        totalFaturamento -= ultimoValor;
+
+        // Se o valor removido foi de um vídeo, diminui o contador de vídeos
+        if (ultimoValor === 25) {
           videosPorSemana[semanaAtual - 1] -= 1;
-          totalFaturamento -= 25;
-        } else {
-          // Remove o último valor personalizado
-          const ultimoValor = faturamentoPorSemana[semanaAtual - 1];
-          faturamentoPorSemana[semanaAtual - 1] = 0;
-          totalFaturamento -= ultimoValor;
         }
 
         // Atualiza a tabela e o progresso
@@ -381,6 +383,44 @@
         voltar(); // Tenta remover da semana anterior
       } else {
         alert("Não há faturamento para remover!");
+      }
+    }
+
+    function pularSemana() {
+      if (semanaAtual < 4) {
+        semanaAtual++; // Avança para a próxima semana
+        alert(`Semana ${semanaAtual - 1} pulada. Agora você está na Semana ${semanaAtual}.`);
+        atualizarProgresso();
+        salvarDados();
+      } else {
+        alert("Todas as semanas do mês já foram completadas!");
+      }
+    }
+
+    function voltarSemana() {
+      if (semanaAtual > 1) {
+        semanaAtual--; // Volta para a semana anterior
+        alert(`Voltando para a Semana ${semanaAtual}.`);
+        atualizarProgresso();
+        salvarDados();
+      } else {
+        alert("Você já está na primeira semana!");
+      }
+    }
+
+    function zerarSemana() {
+      if (confirm("Tem certeza que deseja zerar a semana atual?")) {
+        // Zera o faturamento e o número de vídeos da semana atual
+        faturamentoPorSemana[semanaAtual - 1] = 0;
+        videosPorSemana[semanaAtual - 1] = 0;
+
+        // Atualiza o total de faturamento
+        totalFaturamento = faturamentoPorSemana.reduce((acc, valor) => acc + valor, 0);
+
+        // Atualiza a tabela e o progresso
+        atualizarTabela();
+        atualizarProgresso();
+        salvarDados();
       }
     }
 
