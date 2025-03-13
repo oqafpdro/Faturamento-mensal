@@ -359,13 +359,16 @@
     function voltar() {
       // Verifica se há faturamento para remover na semana atual
       if (faturamentoPorSemana[semanaAtual - 1] > 0) {
-        const valorRemovido = faturamentoPorSemana[semanaAtual - 1] - (faturamentoPorSemana[semanaAtual - 1] - 25 >= 0 ? 25 : faturamentoPorSemana[semanaAtual - 1]);
-        faturamentoPorSemana[semanaAtual - 1] -= valorRemovido;
-        totalFaturamento -= valorRemovido;
-
-        // Se o valor removido foi de um vídeo, diminui o contador de vídeos
-        if (valorRemovido === 25) {
+        // Remove R$ 25 se o último valor adicionado foi um vídeo
+        if (videosPorSemana[semanaAtual - 1] > 0) {
+          faturamentoPorSemana[semanaAtual - 1] -= 25;
           videosPorSemana[semanaAtual - 1] -= 1;
+          totalFaturamento -= 25;
+        } else {
+          // Remove o último valor personalizado
+          const ultimoValor = faturamentoPorSemana[semanaAtual - 1];
+          faturamentoPorSemana[semanaAtual - 1] = 0;
+          totalFaturamento -= ultimoValor;
         }
 
         // Atualiza a tabela e o progresso
